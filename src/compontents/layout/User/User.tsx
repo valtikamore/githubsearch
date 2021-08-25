@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styles from './styles.module.scss'
 
 interface userPropTypes {
@@ -12,7 +13,7 @@ export const User = (props: userPropTypes) => {
         <div className={styles.card}>
             <img src={props.avatarUrl} alt="avatar"/>
             <h4 className={styles.title}>{props.name}</h4>
-            <a href={props.url} className={styles.link}>More</a>
+            <Link to={`/user/${props.name}`} className={styles.link}>More</Link>
         </div>
     );
 };

@@ -7,24 +7,25 @@ import {Search} from "./compontents/common/Search/Search";
 import {Alert} from "./compontents/common/Alert/Alert";
 import {Route, Switch } from 'react-router-dom';
 import { Home } from './pages/Home/Home';
+import {UserPage} from "./pages/UserPage/UserPage";
 
 
 interface stateTypes {
-    users:[],
-    loading:boolean,
+    users:[]
+    loading:boolean
     error: null | string
+    user:{}
 }
 
 class App extends Component<{}, {}>{
     state:stateTypes = {
         users:[],
+        user:{},
         loading:false,
         error:null
     }
 
     async componentDidMount () {
-        console.log(process.env.REACT_APP_CLIENT_ID)
-        console.log(process.env.REACT_APP_CLIENT_SECRET)
         this.setState({loading:true})
         const res = await axios.get(`https://api.github.com/users?client_id=${process.env.REACT_APP_CLIENT_ID}&client_secret=${process.env.REACT_APP_CLIENT_SECRET}`)
         this.setState({users:res.data,loading:false})
@@ -34,7 +35,6 @@ class App extends Component<{}, {}>{
         this.setState({loading:true})
         const res = await axios.get(`https://api.github.com/search/users?q=${text}&client_id=${process.env.REACT_APP_CLIENT_ID}&client_secret=${process.env.REACT_APP_CLIENT_SECRET}`)
         this.setState({users:res.data.items,loading:false})
-        console.log(res.data.items)
     }
     clearUsers = () => {
         this.setState({users:[]})
@@ -43,8 +43,13 @@ class App extends Component<{}, {}>{
         this.setState({error:message})
         setTimeout(() => this.setState({error:null}),5000)
     }
+    getUser = async (username:string) => {
+        this.setState({loading:true})
+        const res = await axios.get(`https://api.github.com/users/${username}?client_id=${process.env.REACT_APP_CLIENT_ID}&client_secret=${process.env.REACT_APP_CLIENT_SECRET}`)
+        this.setState({user:res.data,loading:false})
+    }
     render() {
-    const {users,loading} = this.state
+    const {users,loading,user} = this.state
     return (
         <div>
 
@@ -63,6 +68,7 @@ class App extends Component<{}, {}>{
                     </>
                 )}/>
                 <Route path={'/home'} render={props => (<Home/>)}/>
+                <Route path={'/user/:login'} render={props => (<UserPage {...props} getUser={this.getUser} user={user} loading={loading}/>)}/>
             </Switch>
 
         </div>
